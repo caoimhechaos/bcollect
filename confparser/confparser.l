@@ -58,7 +58,9 @@
 <BACKUP>Summary			{ return SUMMARY; }
 <BACKUP>Exclude			{ return EXCLUDELIST; }
 <BACKUP>[1-9][0-9]*		{ return NUMBER; }
-<BACKUP>\"[^\"\n]*[\"\n]	{ return QSTRING; }
+<BACKUP>\"[^\"\n]*[\"\n]	{ yylval.strval = strdup(yytext+1);
+					yylval.strval[yyleng-2] = '\0';
+					return QSTRING; }
 <BACKUP>true|false		{ yylval.lval = strcmp(yytext, "false"); return BOOLEAN; }
 <BACKUP>"End Backup"		{ BEGIN INITIAL; return ENDBACKUP; }
 

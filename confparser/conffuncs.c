@@ -42,6 +42,8 @@ init_interval(void)
 {
 	memset(intervals, 0, sizeof(intervals));
 	nintervals = 0;
+
+	backups.next = backups.prev = &backups;
 }
 
 void
@@ -88,8 +90,82 @@ backup_name(char *name)
 }
 
 void
+backup_source(char *source)
+{
+	if (!current_backup)
+	{
+		fprintf(stderr, "No backup selected! (This shouldn't "
+			"happen)\n");
+		exit(EXIT_FAILURE);
+	}
+
+	current_backup->source = source;
+}
+
+void
+backup_dest(char *dest)
+{
+	if (!current_backup)
+	{
+		fprintf(stderr, "No backup selected! (This shouldn't "
+			"happen)\n");
+		exit(EXIT_FAILURE);
+	}
+
+	current_backup->dest = dest;
+}
+
+void
+backup_summary(unsigned long flag)
+{
+	if (!current_backup)
+	{
+		fprintf(stderr, "No backup selected! (This shouldn't "
+			"happen)\n");
+		exit(EXIT_FAILURE);
+	}
+
+	current_backup->summary = !!flag;
+}
+
+void
+backup_exclude(char *pattern)
+{
+	struct exclude *entry;
+
+	if (!current_backup)
+	{
+		fprintf(stderr, "No backup selected! (This shouldn't "
+			"happen)\n");
+		exit(EXIT_FAILURE);
+	}
+
+	entry = malloc(sizeof(struct exclude));
+	if (!entry)
+	{
+		perror("malloc");
+		exit(EXIT_FAILURE);
+	}
+
+	memset(entry, 0, sizeof(struct exclude));
+	entry->pattern = pattern;
+
+	entry->next = &current_backup->excludelist;
+	entry->prev = current_backup->excludelist.prev;
+	current_backup->excludelist.prev->next = entry;
+	current_backup->excludelist.prev = entry;
+}
+
+void
 backup_finalize(void)
 {
+	if (!current_backup)
+	{
+		fprintf(stderr, "No backup selected! (This shouldn't "
+			"happen)\n");
+		exit(EXIT_FAILURE);
+	}
+
 	if (!current_backup->name)
 	{
 		fprintf(stderr, "Ignoring backup: no name defined\n");
@@ -100,8 +176,8 @@ backup_finalize(void)
 
 	if (!current_backup->source || !current_backup->dest)
 	{
-		fprintf(stderr, "Ignoring backup %s: no name defined\n",
-			current_backup->name);
+		fprintf(stderr, "Ignoring backup %s: no source or "
+			"destination defined\n", current_backup->name);
 		if (current_backup->source)
 			free(current_backup->source);
 		if (current_backup->dest)
