@@ -80,12 +80,12 @@ backup_def: name_def
 
 name_def: NAME QSTRING		{ backup_name($2); };
 
-source_def: SOURCE QSTRING;
+source_def: SOURCE QSTRING	{ backup_source($2); };
 
-dest_def: DESTINATION QSTRING;
+dest_def: DESTINATION QSTRING	{ backup_dest($2); };
 
-summary_def: SUMMARY BOOLEAN;
+summary_def: SUMMARY BOOLEAN	{ backup_summary($2); };
 
-exclude_def: EXCLUDELIST QSTRING;
+exclude_def: EXCLUDELIST QSTRING { backup_exclude($2); };
 
 %%

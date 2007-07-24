@@ -2,6 +2,13 @@
 
 char *file;
 
+void
+yyerror(char *str)
+{
+	fprintf(stderr, "Parse error at %s: %s\n", file, str);
+	exit(EXIT_FAILURE);
+}
+
 static void usage(void)
 {
 	fprintf(stderr, "Usage: bcollect configfile\n");
@@ -34,12 +41,7 @@ int main(int argc, char **argv)
 
 	fclose(fp);
 
-	for (i = 0; i < nintervals; i++)
-		printf("Interval \"%s\" count %d\n", intervals[i].name,
-			intervals[i].count);
-
-	/* for (cur = backups.next; cur != &backups; cur = cur->next)
-		printf("Backup %s\n", cur->name); */
+	/* TODO: Work with the backups here... */
 
 	exit(EXIT_SUCCESS);
 }
