@@ -1,6 +1,6 @@
 /*
- * (c) 2005, Tonnerre Lombard <tonnerre@thebsh.sygroup.ch>,
- *	     SyGroup GmbH Reinach. All rights reserved.
+ * (c) 2007, Tonnerre Lombard <tonnerre@bsdprojects.net>,
+ *	     BSD projects network. All rights reserved.
  *
  * Redistribution and use in source  and binary forms, with or without
  * modification, are permitted  provided that the following conditions
@@ -12,7 +12,7 @@
  *   notice, this  list of conditions and the  following disclaimer in
  *   the  documentation  and/or  other  materials  provided  with  the
  *   distribution.
- * * Neither  the  name  of the  SyGroup  GmbH  nor  the name  of  its
+ * * Neither the name of the BSD projects  network nor the name of its
  *   contributors may  be used to endorse or  promote products derived
  *   from this software without specific prior written permission.
  *
@@ -27,74 +27,23 @@
  * STRICT  LIABILITY,  OR  TORT  (INCLUDING NEGLIGENCE  OR  OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * bcollect main header file.
  */
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <time.h>
-#include <dirent.h>
 
-/*
- * Definitions
- */
-#define	MAX_INTERVALS	32
-#define	DEFAULT_PATH	"/etc/bcollect.conf"
+extern int rmdir_recursive(const char *basedir);
 
-/*
- * Data structures
- */
-struct interval
+int main(int argc, char **argv)
 {
-	char *		name;
-	unsigned long	count;
-};
+	int exitval = EXIT_SUCCESS;
+	int i;
 
-struct exclude
-{
-	struct exclude	*next, *prev;
-	char		*pattern;
-};
+	for (i = 1; i < argc; i++)
+		if (rmdir_recursive(argv[i]))
+		{
+			perror(argv[i]);
+			exitval = EXIT_FAILURE;
+		}
 
-struct backup
-{
-	struct backup	*next, *prev;
-	char		*name, *source, *dest;
-	unsigned long	 summary;
-	struct exclude	 excludelist;
-};
-
-/*
- * Global variables
- */
-extern FILE *yyin;
-extern char *file;
-extern char *yytext;
-extern struct interval intervals[MAX_INTERVALS];
-extern int nintervals;
-extern struct backup backups;
-
-/*
- * Parser functions
- */
-extern void init_interval(void);
-extern void declare_interval(char *, int);
-
-extern void backup_add(void);
-extern void backup_name(char *);
-extern void backup_finalize(void);
-
-extern void do_backup(struct interval *, struct backup *);
-extern int rmdir_recursive(const char *);
-
-static inline void
-yyerror(char *str)
-{
-	fprintf(stderr, "Parse error at %s near %s: %s\n", file, yytext, str);
-	exit(EXIT_FAILURE);
+	exit(exitval);
 }

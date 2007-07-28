@@ -1,32 +1,63 @@
 #include <bcollect.h>
 
-char *file;
-
-void
-yyerror(char *str)
-{
-	fprintf(stderr, "Parse error at %s: %s\n", file, str);
-	exit(EXIT_FAILURE);
-}
+char *file = DEFAULT_PATH;
 
 static void usage(void)
 {
-	fprintf(stderr, "Usage: bcollect configfile\n");
+	fprintf(stderr, "Usage: bcollect [-c configfile] [-p] <interval> "
+		"<backup>|-a\n");
 	exit(EXIT_FAILURE);
 }
 
 int main(int argc, char **argv)
 {
-	struct backup *cur;
+	struct backup *cur = NULL;
+	struct interval *interval = NULL;
+	unsigned long all_backups = 0, leftover_args;
+	char *intervalname;
+	char *backupname;
 	FILE *fp;
 	int i;
 
 	init_interval();
 
-	if (argc < 2)
+	for (;;)
+	{
+		int c = getopt(argc, argv, "ac:");
+		if (c == -1)
+			break;
+
+		switch (c)
+		{
+		case 'a':
+			all_backups = 1;
+			break;
+		case 'c':
+			file = optarg;
+			break;
+		case 'p':
+			fprintf(stderr, "WARNING! Parallel mode is not yet implemented.\n");
+			break;
+		default:
+			usage;
+		}
+	}
+
+	leftover_args = argc - optind;
+	if (leftover_args + all_backups != 2)
 		usage();
 
-	file = *(argv + 1);
+	intervalname = argv[optind];
+	if (!all_backups)
+	{
+		if (strcmp(argv[optind + 1], "-a") == 0)
+			all_backups = 1;
+		else
+			backupname = argv[optind + 1];
+	}
+
+	if (!file)
+		file = DEFAULT_PATH;
 
 	fp = fopen(file, "r");
 	if (!fp)
@@ -41,7 +72,21 @@ int main(int argc, char **argv)
 
 	fclose(fp);
 
-	/* TODO: Work with the backups here... */
+	for (i = 0; i < nintervals; i++)
+	{
+		if (strcmp(intervalname, intervals[i].name) == 0)
+			interval = &intervals[i];
+	}
+
+	if (!interval)
+	{
+		fprintf(stderr, "No such interval: %s\n", intervalname);
+		exit(EXIT_FAILURE);
+	}
+
+	for (cur = backups.next; cur && cur != &backups; cur = cur->next)
+		if (all_backups || strcmp(backupname, cur->name) == 0)
+			do_backup(interval, cur);
 
 	exit(EXIT_SUCCESS);
 }
