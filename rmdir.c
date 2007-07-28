@@ -1,6 +1,6 @@
 /*
- * (c) 2005, Caoimhe Chaos <tonnerre@thebsh.sygroup.ch>,
- *	     SyGroup GmbH Reinach. All rights reserved.
+ * (c) 2007, Caoimhe Chaos <caoimhechaos@protonmail.com>,
+ *	     BSD projects network. All rights reserved.
  *
  * Redistribution and use in source  and binary forms, with or without
  * modification, are permitted  provided that the following conditions
@@ -12,7 +12,7 @@
  *   notice, this  list of conditions and the  following disclaimer in
  *   the  documentation  and/or  other  materials  provided  with  the
  *   distribution.
- * * Neither  the  name  of the  SyGroup  GmbH  nor  the name  of  its
+ * * Neither the name of the BSD projects  network nor the name of its
  *   contributors may  be used to endorse or  promote products derived
  *   from this software without specific prior written permission.
  *
@@ -27,74 +27,63 @@
  * STRICT  LIABILITY,  OR  TORT  (INCLUDING NEGLIGENCE  OR  OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * bcollect main header file.
  */
+#include <bcollect.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <time.h>
-#include <dirent.h>
-
-/*
- * Definitions
- */
-#define	MAX_INTERVALS	32
-#define	DEFAULT_PATH	"/etc/bcollect.conf"
-
-/*
- * Data structures
- */
-struct interval
+/* FIXME: This function ought to be iterative! */
+int
+rmdir_recursive(const char *basedir)
 {
-	char *		name;
-	unsigned long	count;
-};
+	DIR *d = opendir(basedir);
+	struct dirent *dp;
 
-struct exclude
-{
-	struct exclude	*next, *prev;
-	char		*pattern;
-};
+	printf("Called on %s\n", basedir);
+	sleep(1);
 
-struct backup
-{
-	struct backup	*next, *prev;
-	char		*name, *source, *dest;
-	unsigned long	 summary;
-	struct exclude	 excludelist;
-};
+	if (!d)
+	{
+		perror(basedir);
+		return -1;
+	}
+	while (dp = readdir(d))
+	{
+		size_t len = strlen(basedir) + strlen(dp->d_name) + 3;
+		struct stat sb;
+		char *path;
 
-/*
- * Global variables
- */
-extern FILE *yyin;
-extern char *file;
-extern char *yytext;
-extern struct interval intervals[MAX_INTERVALS];
-extern int nintervals;
-extern struct backup backups;
+		if (!strcmp(dp->d_name, ".") || !strcmp(dp->d_name, ".."))
+			continue;
 
-/*
- * Parser functions
- */
-extern void init_interval(void);
-extern void declare_interval(char *, int);
+		printf("Dir part: %s\n", dp->d_name);
 
-extern void backup_add(void);
-extern void backup_name(char *);
-extern void backup_finalize(void);
+		path = malloc(len);
 
-extern void do_backup(struct interval *, struct backup *);
-extern int rmdir_recursive(const char *);
+		if (!path)
+		{
+			perror("malloc");
+			free(path);
+			continue;
+		}
 
-static inline void
-yyerror(char *str)
-{
-	fprintf(stderr, "Parse error at %s near %s: %s\n", file, yytext, str);
-	exit(EXIT_FAILURE);
+		memset(path, 0, len);
+		snprintf(path, len - 1, "%s/%s", basedir, dp->d_name);
+
+		if (stat(path, &sb))
+		{
+			perror(path);
+			free(path);
+			continue;
+		}
+
+		if (sb.st_mode & S_IFDIR)
+			rmdir_recursive(path);
+		else
+			unlink(path);
+
+		free(path);
+	}
+
+	closedir(d);
+
+	return rmdir(basedir);
 }

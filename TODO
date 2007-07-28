@@ -1,0 +1,9 @@
+Todo after version 0.5:
+ * Implement parallel execution (-p)
+ * Implement pre/post execution
+
+Todo for version 0.5:
+ * Execute rsync in order to actually do the backup
+ * Delete old backups as they are not needed anymore
+ * Make the rmdir implementation iterative
+ * Make the definitions portable in some way (headers, etc.)
