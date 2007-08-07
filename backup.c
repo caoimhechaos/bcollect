@@ -1,6 +1,8 @@
 #include <bcollect.h>
 
+#ifndef MIN
 #define MIN(a,b)	((a) < (b) ? (a) : (b))
+#endif
 
 void
 do_backup(struct interval *interval, struct backup *backup)
@@ -12,8 +14,11 @@ do_backup(struct interval *interval, struct backup *backup)
 	size_t locklen = strlen(backup->dest) + 7;
 	size_t len = strlen(backup->dest) + strlen(interval->name) +
 		strlen(backup->name) + 20;
+	pid_t pid;
+
 	char *lockpath = malloc(locklen);
 	char *progpath = malloc(proglen);
+	char *latestpath = NULL;
 	char *path = malloc(len + 1);
 
 	int lockfd, progfd;
@@ -33,9 +38,6 @@ do_backup(struct interval *interval, struct backup *backup)
 	snprintf(path, len - 16, "%s/%s-%s-", backup->dest, backup->name,
 		interval->name);
 	strftime(path + len - 17, 16, "%Y-%m-%d_%Hh%M", now);
-
-	printf("Executing backup %s with interval %s, lock %s, progress lock %s to %s\n",
-		backup->name, interval->name, lockpath, progpath, path);
 
 	lockfd = open(lockpath, O_RDONLY | O_CREAT);
 	if (lockfd == -1)
@@ -101,7 +103,6 @@ do_backup(struct interval *interval, struct backup *backup)
 			memset(entry, 0, entry_len);
 			snprintf(entry, entry_len - 1, "%s/%s", backup->dest,
 				de->d_name);
-			printf("Looking at %s\n", entry);
 
 			if (stat(entry, &sb)) perror(entry);
 			else if (sb.st_mtime > latestmtime)
@@ -124,6 +125,8 @@ do_backup(struct interval *interval, struct backup *backup)
 	}
 	close(progfd);
 
+	/* FIXME: Delete oldest backups here */
+
 	/*
 	 * We can mkdir only now because we weren't protected by the lock
 	 * before.
@@ -134,7 +137,51 @@ do_backup(struct interval *interval, struct backup *backup)
 		goto out_unlock;
 	}
 
-	sleep(10);
+	/*
+	 * Call rsync and let it fill realpath with data from source.
+	 */
+	pid = fork();
+
+	if (pid < 0)
+	{
+		perror("fork");
+		goto out_unlock;
+	}
+	else if (!pid)
+	{
+		/* FIXME: Implement skip lists, additional arguments, etc. */
+		if (latestpath)
+			execl(RSYNC_PATH, RSYNC_PATH, "-a", "--delete",
+				"--numeric-ids", "--relative",
+				"--delete-excluded", "--link-dest",
+				latestpath, backup->source, path, NULL);
+		else
+			execl(RSYNC_PATH, RSYNC_PATH, "-a", "--delete",
+				"--numeric-ids", "--relative",
+				"--delete-excluded", backup->source, path,
+				NULL);
+
+		perror(RSYNC_PATH);
+	}
+	else
+	{
+		int exitcode = 0;
+
+		if (waitpid(pid, &exitcode, 0) < 0)
+		{
+			perror("wait");
+			rmdir_recursive(path);
+			goto out_unlock;
+		}
+
+		if (WEXITSTATUS(exitcode))
+		{
+			fprintf(stderr, "rsync process exited with code %d!\n",
+				WEXITSTATUS(exitcode));
+			rmdir_recursive(path);
+			goto out_unlock;
+		}
+	}
 
 out_unlock:
 	flock(lockfd, LOCK_UN);

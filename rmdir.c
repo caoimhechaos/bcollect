@@ -37,9 +37,6 @@ rmdir_recursive(const char *basedir)
 	DIR *d = opendir(basedir);
 	struct dirent *dp;
 
-	printf("Called on %s\n", basedir);
-	sleep(1);
-
 	if (!d)
 	{
 		perror(basedir);
@@ -53,8 +50,6 @@ rmdir_recursive(const char *basedir)
 
 		if (!strcmp(dp->d_name, ".") || !strcmp(dp->d_name, ".."))
 			continue;
-
-		printf("Dir part: %s\n", dp->d_name);
 
 		path = malloc(len);
 
