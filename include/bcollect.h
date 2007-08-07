@@ -31,6 +31,9 @@
  * bcollect main header file.
  */
 
+#include <sys/resource.h>
+#include <sys/param.h>
+#include <sys/wait.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -45,6 +48,7 @@
  */
 #define	MAX_INTERVALS	32
 #define	DEFAULT_PATH	"/etc/bcollect.conf"
+#define RSYNC_PATH	"/usr/pkg/bin/rsync"
 
 /*
  * Data structures
