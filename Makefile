@@ -1,5 +1,5 @@
-CFLAGS =		-I. -I./include -g
-BCOLLECT_FILES =	main.o rmdir.o backup.o confparser/confparser.a
+CFLAGS =		-I. -I./include -g -DYYISARRAY=1
+BCOLLECT_FILES =	main.o rmdir.o backup.o flock.o confparser/confparser.a
 RMFR_FILES =		rmdir.o rmfr.o
 LIBS =			-ll -ly
 
