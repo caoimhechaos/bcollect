@@ -31,84 +31,15 @@
  * bcollect main header file.
  */
 
-#include <sys/types.h>
-#include <sys/resource.h>
-#include <sys/param.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <time.h>
-#include <dirent.h>
-
-#ifndef HAVE_FLOCK
-#include <flock.h>
-#endif
-
 /*
  * Definitions
  */
-#define	MAX_INTERVALS	32
-#define	DEFAULT_PATH	"/etc/bcollect.conf"
-#define RSYNC_PATH	"/usr/pkg/bin/rsync"
+#define LOCK_SH	0x01	/* shared file lock */
+#define	LOCK_EX	0x02	/* exclusive file lock */
+#define LOCK_NB	0x04	/* don't block when locking */
+#define LOCK_UN	0x08	/* unlock file */
 
 /*
- * Data structures
+ * flock function
  */
-struct interval
-{
-	char *		name;
-	unsigned long	count;
-};
-
-struct exclude
-{
-	struct exclude	*next, *prev;
-	char		*pattern;
-};
-
-struct backup
-{
-	struct backup	*next, *prev;
-	char		*name, *source, *dest;
-	unsigned long	 summary;
-	struct exclude	 excludelist;
-};
-
-/*
- * Global variables
- */
-extern FILE *yyin;
-extern char *file;
-#ifdef YYISARRAY
-extern char yytext[];
-#else
-extern char *yytext;
-#endif
-extern struct interval intervals[MAX_INTERVALS];
-extern int nintervals;
-extern struct backup backups;
-
-/*
- * Parser functions
- */
-extern void init_interval(void);
-extern void declare_interval(char *, int);
-
-extern void backup_add(void);
-extern void backup_name(char *);
-extern void backup_finalize(void);
-
-extern void do_backup(struct interval *, struct backup *);
-extern int rmdir_recursive(const char *);
-
-static inline void
-yyerror(char *str)
-{
-	fprintf(stderr, "Parse error at %s near %s: %s\n", file, yytext, str);
-	exit(EXIT_FAILURE);
-}
+extern int flock(int fd, int operation);
