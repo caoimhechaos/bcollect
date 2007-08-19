@@ -149,18 +149,47 @@ do_backup(struct interval *interval, struct backup *backup)
 	}
 	else if (!pid)
 	{
-		/* FIXME: Implement skip lists, additional arguments, etc. */
-		if (latestpath)
-			execl(RSYNC_PATH, RSYNC_PATH, "-a", "--delete",
-				"--numeric-ids", "--relative",
-				"--delete-excluded", "--link-dest",
-				latestpath, backup->source, path, NULL);
-		else
-			execl(RSYNC_PATH, RSYNC_PATH, "-a", "--delete",
-				"--numeric-ids", "--relative",
-				"--delete-excluded", backup->source, path,
-				NULL);
+		struct exclude *pos;
+		char **argv;
+		int argc = 9;
+		int argi;
 
+		for (pos = backup->excludelist.next; pos &&
+			pos->next != &backup->excludelist; pos = pos->next)
+			argc += 2;
+
+		if (latestpath)
+			argc += 2;
+
+		argv = malloc(argc * sizeof(char *));
+
+		argv[0] = RSYNC_PATH;
+		argv[1] = "-a";
+		argv[2] = "--delete";
+		argv[3] = "--numeric-ids";
+		argv[4] = "--relative";
+		argv[5] = "--delete-excluded";
+
+		argi = 6;
+
+		if (latestpath)
+		{
+			argv[argi++] = "--link-dest",
+			argv[argi++] = latestpath;
+		}
+
+		for (pos = backup->excludelist.next; pos &&
+			pos->next != &backup->excludelist; pos = pos->next)
+		{
+			argv[argi++] = "--exclude";
+			argv[argi++] = pos->pattern;
+		}
+
+		argv[argi++] = backup->source;
+		argv[argi++] = path;
+		argv[argi++] = NULL;
+
+		execv(RSYNC_PATH, argv);
 		perror(RSYNC_PATH);
 	}
 	else
