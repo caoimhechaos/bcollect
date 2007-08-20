@@ -12,6 +12,7 @@ do_backup(struct interval *interval, struct backup *backup)
 
 	size_t proglen = strlen(backup->dest) + 21;
 	size_t locklen = strlen(backup->dest) + 7;
+	size_t nbackups = interval->count + 1;
 	size_t len = strlen(backup->dest) + strlen(interval->name) +
 		strlen(backup->name) + 20;
 	pid_t pid;
@@ -39,7 +40,8 @@ do_backup(struct interval *interval, struct backup *backup)
 		interval->name);
 	strftime(path + len - 17, 16, "%Y-%m-%d_%Hh%M", now);
 
-	lockfd = open(lockpath, O_RDONLY | O_CREAT);
+	lockfd = open(lockpath, O_RDONLY | O_CREAT,
+		S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
 	if (lockfd == -1)
 	{
 		fprintf(stderr, "Locking backup directory for %s: %s\n",
@@ -58,7 +60,8 @@ do_backup(struct interval *interval, struct backup *backup)
 		goto out_close_lock;
 	}
 
-	progfd = open(progpath, O_RDONLY | O_CREAT | O_EXCL);
+	lockfd = open(lockpath, O_RDONLY | O_CREAT | O_EXCL,
+		S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
 	if (progfd == -1)
 	{
 		struct dirent *de;
@@ -107,6 +110,7 @@ do_backup(struct interval *interval, struct backup *backup)
 			if (stat(entry, &sb)) perror(entry);
 			else if (sb.st_mtime > latestmtime)
 			{
+				if (latest) free(latest);
 				latest = entry;
 				latestmtime = sb.st_mtime;
 			}
@@ -125,7 +129,80 @@ do_backup(struct interval *interval, struct backup *backup)
 	}
 	close(progfd);
 
-	/* FIXME: Delete oldest backups here */
+	while (nbackups > interval->count)
+	{
+		DIR *dirp;
+		char *oldest = NULL;
+		struct dirent *de;
+		struct stat sb;
+		time_t oldest_time = 0, latest_time = 0;
+
+		nbackups = 0;
+		memset(&sb, 0, sizeof(struct stat));
+
+		if (!(dirp = opendir(backup->dest)))
+		{
+			perror("opendir");
+			goto out_unlock;
+		}
+		while (de = readdir(dirp))
+		{
+			size_t entry_len = strlen(backup->dest) +
+				strlen(de->d_name) + 3;
+			size_t minlen = MIN(strlen(de->d_name),
+				strlen(backup->name));
+			char *entry = NULL;
+
+			/* Check if the directory entry is a backup */
+			if (minlen < strlen(backup->name) ||
+				strncmp(de->d_name, backup->name, minlen))
+				continue;
+
+			nbackups++;
+			entry = malloc(entry_len);
+			if (!entry)
+			{
+				perror("malloc");
+				continue;
+			}
+
+			if (entry == oldest)
+				fputs("WARNING: malloc did something weird!\n",
+					stderr);
+
+			memset(entry, 0, entry_len);
+			snprintf(entry, entry_len - 1, "%s/%s", backup->dest,
+				de->d_name);
+
+			if (stat(entry, &sb)) perror(entry);
+			else if (sb.st_mtime > latest_time)
+			{
+				if (latestpath) free(latestpath);
+				latestpath = strdup(entry);
+				latest_time = sb.st_mtime;
+
+				if (!oldest_time || sb.st_mtime < oldest_time)
+				{
+					if (oldest) free(oldest);
+					oldest = strdup(entry);
+					oldest_time = sb.st_mtime;
+				}
+			}
+			else if (!oldest_time || sb.st_mtime < oldest_time)
+			{
+				if (oldest) free(oldest);
+				oldest = strdup(entry);
+				oldest_time = sb.st_mtime;
+			}
+			free(entry);
+		}
+		closedir(dirp);
+
+		if (oldest && nbackups > interval->count)
+			rmdir_recursive(oldest);
+
+		if (oldest) free(oldest);
+	}
 
 	/*
 	 * We can mkdir only now because we weren't protected by the lock
@@ -221,6 +298,7 @@ out_close_lock:
 	unlink(lockpath);
 
 out_free:
+	if (latestpath) free(latestpath);
 	if (progpath) free(progpath);
 	if (lockpath) free(lockpath);
 	if (path) free(path);
