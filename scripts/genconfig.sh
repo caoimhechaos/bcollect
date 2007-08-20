@@ -50,36 +50,38 @@ else
 fi
 rm testprog testprog.c
 
-cat << EOT > testparser.y
-%token TEST
+cat << EOT > testparser.l
 %%
-test:	TEST
+.	|
+\n	{ }
 %%
 EOT
-${YACC} testparser.y
-if grep -q YYISARRAY y.tab.c
+${LEX} testparser.l
+if grep -q YYISARRAY lex.yy.c
 then
 	echo '#define YYISARRAY 1' >> config.h
 else
 	echo '#undef YYISARRAY' >> config.h
 fi
-rm -f testparser.y testparser.c y.tab.c y.tab.h
+rm -f testparser.y testparser.c lex.yy.c
 
 if [ -d '../{arch}' ]
 then
 	wd=`pwd`
 	cd ..
-	tla tree-revision |	\
+	tla tree-version |	\
 		awk -F'--' '{ print "#define BCOLLECT_VERSION \"" $4 "\"" }' \
 		>> include/config.h
-	tla tree-revision |	\
+	tla tree-version |	\
 		awk -F'--' '{ print "#define BCOLLECT_BRANCH \"" $3 "\"" }' \
 		>> include/config.h
 	cd "${wd}"
 fi
 
-if ! grep -q 'BCOLLECT_VERSION' config.h
+if grep -q 'BCOLLECT_VERSION' config.h
 then
+	:
+else
 	if [ -f '../ChangeLog' ]
 	then
 		grep 'bcollect--' ../ChangeLog | head -1 |		\
