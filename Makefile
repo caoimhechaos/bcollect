@@ -16,19 +16,10 @@ rmfr:			${RMFR_FILES}
 confparser/confparser.a:
 	cd confparser; ${MAKE} confparser.a
 
-ChangeLog:
-	tla changelog > ChangeLog
-
-include/config.h:	ChangeLog
+include/config.h:
 	cd include; ${MAKE} config.h
 
 clean:
 	cd confparser; ${MAKE} clean
 	cd include; ${MAKE} clean
 	rm -f *.o bcollect rmfr *.core core
-
-distclean:
-	rm -f ChangeLog
-
-dist:	distclean
-	${SHELL} scripts/dist.sh
