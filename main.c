@@ -23,7 +23,7 @@ int main(int argc, char **argv)
 
 	for (;;)
 	{
-		int c = getopt(argc, argv, "ac:");
+		int c = getopt(argc, argv, "ac:pv");
 		if (c == -1)
 			break;
 
@@ -38,6 +38,11 @@ int main(int argc, char **argv)
 		case 'p':
 			fprintf(stderr, "WARNING! Parallel mode is not yet implemented.\n");
 			break;
+		case 'v':
+			fprintf(stderr, "bcollect version %s (%s)\n"
+				"Compiled for %s\n", BCOLLECT_VERSION,
+				BCOLLECT_BRANCH, BCOLLECT_OSNAME);
+			exit(EXIT_SUCCESS);
 		default:
 			usage;
 		}
