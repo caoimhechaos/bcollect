@@ -29,40 +29,17 @@
 # ARISING IN ANY WAY OUT OF  THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# FIXME: stub
-rm -f config.h
-touch config.h
+version=`tla tree-version | awk -F'--' '{ print $4 }'`
+tla changelog > ChangeLog
+(echo "1,4d"; echo "w"; echo "q") | ed ChangeLog
+exit 0
+find . -name '.arch-ids' -print0 | xargs -0 rm -fr
+rm -fr '{arch}'
 
-cat << EOT > testprog.c
-int flock(int, int);
+wd=`pwd | sed -e's@^.*/@@g`
 
-int main(void)
-{
-	int r = flock(0,0);
-	return 0;
-}
-EOT
-"${CC}" ${CFLAGS} ${LDFLAGS} -o testprog -s testprog.c
-if [ "$?" -eq "0" ]
-then
-	echo '#define HAVE_FLOCK 1' >> config.h
-else
-	echo '#undef HAVE_FLOCK' >> config.h
-fi
-rm testprog testprog.c
-
-cat << EOT > testparser.y
-%token TEST
-%%
-test:	TEST
-%%
-EOT
-${YACC} testparser.y
-if grep -q YYISARRAY y.tab.c
-then
-	echo '#define YYISARRAY 1' >> config.h
-else
-	echo '#undef YYISARRAY' >> config.h
-fi
-rm -f testparser.y testparser.c y.tab.c y.tab.h
+cd ..
+tar cf "${wd}.tar" "${wd}"
+bzip2 -9k "${wd}.tar"
+rzip -9 "${wd}.tar"
 exit 0
