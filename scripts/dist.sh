@@ -32,8 +32,7 @@
 version=`tla tree-version | awk -F'--' '{ print $4 }'`
 tla changelog > ChangeLog
 (echo "1,4d"; echo "w"; echo "q") | ed ChangeLog
-exit 0
-find . -name '.arch-ids' -print0 | xargs -0 rm -fr
+find . -name '.arch-ids' -print | xargs rm -fr
 rm -fr '{arch}'
 
 wd=`pwd | sed -e's@^.*/@@g`

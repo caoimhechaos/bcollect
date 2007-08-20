@@ -27,7 +27,7 @@ clean:
 	cd include; ${MAKE} clean
 	rm -f *.o bcollect rmfr *.core core
 
-distclean:
+distclean: clean
 	rm -f ChangeLog
 
 dist:	distclean
