@@ -35,7 +35,7 @@ tla changelog > ChangeLog
 find . -name '.arch-ids' -print | xargs rm -fr
 rm -fr '{arch}'
 
-wd=`pwd | sed -e's@^.*/@@g`
+wd=`pwd | sed -e's@^.*/@@g'`
 
 cd ..
 tar cf "${wd}.tar" "${wd}"
