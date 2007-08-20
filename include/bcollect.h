@@ -31,6 +31,8 @@
  * bcollect main header file.
  */
 
+#include "config.h"
+
 #include <sys/types.h>
 #include <sys/resource.h>
 #include <sys/param.h>
