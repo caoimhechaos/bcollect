@@ -1,6 +1,6 @@
 /*
- * (c) 2005, Tonnerre Lombard <tonnerre@thebsh.sygroup.ch>,
- *	     SyGroup GmbH Reinach. All rights reserved.
+ * (c) 2005, Tonnerre Lombard <tonnerre@bsdprojects.net>,
+ *	     BSD projects network. All rights reserved.
  *
  * Redistribution and use in source  and binary forms, with or without
  * modification, are permitted  provided that the following conditions
@@ -12,7 +12,7 @@
  *   notice, this  list of conditions and the  following disclaimer in
  *   the  documentation  and/or  other  materials  provided  with  the
  *   distribution.
- * * Neither  the  name  of the  SyGroup  GmbH  nor  the name  of  its
+ * * Neither the name of the BSD  projects network nor the name of its
  *   contributors may  be used to endorse or  promote products derived
  *   from this software without specific prior written permission.
  *
