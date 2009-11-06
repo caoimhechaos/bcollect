@@ -246,6 +246,36 @@ do_backup(struct interval *interval, struct backup *backup)
 	}
 
 	/*
+	 * Call the pre-execution script
+	 *
+	 * XXX: Hmm, we really have to do something about code duplication here.
+	 */
+	if (backup->preexec)
+	{
+		/**
+		 * This code injection possibility would only be a security
+		 * problem if it wasn't precisely what we wanted. Please
+		 * stop bugging.
+		 */
+		int exitcode = system(backup->preexec);
+
+		if (exitcode < 0)
+		{
+			perror("system");
+			rmdir_recursive(path);
+			goto out_unlock;
+		}
+
+		if (WEXITSTATUS(exitcode))
+		{
+			fprintf(stderr, "pre_exec process exited with code %d!\n",
+				WEXITSTATUS(exitcode));
+			rmdir_recursive(path);
+			goto out_unlock;
+		}
+	}
+
+	/*
 	 * Call rsync and let it fill realpath with data from source.
 	 */
 	pid = fork();
@@ -319,6 +349,35 @@ do_backup(struct interval *interval, struct backup *backup)
 			goto out_unlock;
 		}
 	}
+
+	/*
+	 * Call the pre-execution script
+	 *
+	 * XXX: Hmm, we really have to do something about code duplication here.
+	 */
+	if (backup->postexec)
+	{
+		/**
+		 * This code injection possibility would only be a security
+		 * problem if it wasn't precisely what we wanted. Please
+		 * stop bugging.
+		 */
+		int exitcode = system(backup->postexec);
+
+		if (exitcode < 0)
+		{
+			perror("system");
+			goto out_unlock;
+		}
+
+		if (WEXITSTATUS(exitcode))
+		{
+			fprintf(stderr, "post_exec process exited with code %d!\n",
+				WEXITSTATUS(exitcode));
+			goto out_unlock;
+		}
+	}
+
 
 out_unlock:
 	flock(lockfd, LOCK_UN);
