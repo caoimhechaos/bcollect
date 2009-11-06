@@ -82,14 +82,25 @@ if grep -q 'BCOLLECT_VERSION' config.h
 then
 	:
 else
-	if [ -f '../ChangeLog' ]
+	if [ -d '../.git' ]
 	then
-		grep 'bcollect--' ../ChangeLog | head -1 |		\
-			awk -F'--' '{ print "#define BCOLLECT_VERSION \"" $3 "\"" }' \
-			>> config.h
-		grep 'bcollect--' ../ChangeLog | head -1 |		\
-			awk -F'--' '{ print "#define BCOLLECT_BRANCH \"" $2 "\"" }' \
-			>> config.h
+		gitbranch=$(git branch | grep '^* ' | sed -e's/^\* //')
+		if echo "${gitbranch}" | grep -q -- -
+		then
+			branch=$(echo "${gitbranch}" | awk -F- '{ print $1 }')
+			version=$(echo "${gitbranch}" | sed -e's/^${branch}-//')
+		fi
+		if [ -z "${branch}" ]
+		then
+			branch="${gitbranch}"
+		fi
+		if [ -z "${version}" ]
+		then
+			version=":dev"
+		fi
+
+		echo "#define BCOLLECT_VERSION \"${version}\"" >> config.h
+		echo "#define BCOLLECT_BRANCH \"${branch}\"" >> config.h
 	else
 		echo '#define BCOLLECT_VERSION "0.0"'
 		echo '#define BCOLLECT_BRANCH "unknown"'

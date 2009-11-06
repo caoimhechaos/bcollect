@@ -17,7 +17,7 @@ confparser/confparser.a:
 	cd confparser; ${MAKE} confparser.a
 
 ChangeLog:
-	tla changelog > ChangeLog
+	git shortlog > ChangeLog
 
 include/config.h:	ChangeLog
 	cd include; ${MAKE} config.h
