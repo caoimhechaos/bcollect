@@ -41,7 +41,7 @@
 }
 
 %token BEGINDEFL BEGINBACKUP ENDDEFL ENDBACKUP INTERVAL NAME SOURCE
-%token DESTINATION SUMMARY EXCLUDELIST
+%token DESTINATION SUMMARY EXCLUDELIST PREEXEC POSTEXEC
 
 %token <strval> QSTRING
 %token <lval> NUMBER
@@ -76,7 +76,9 @@ backup_def: name_def
 	| source_def
 	| dest_def
 	| summary_def
-	| exclude_def;
+	| exclude_def
+	| preexec_def
+	| postexec_def;
 
 name_def: NAME QSTRING		{ backup_name($2); };
 
@@ -87,5 +89,9 @@ dest_def: DESTINATION QSTRING	{ backup_dest($2); };
 summary_def: SUMMARY BOOLEAN	{ backup_summary($2); };
 
 exclude_def: EXCLUDELIST QSTRING { backup_exclude($2); };
+
+preexec_def: PREEXEC QSTRING	{ backup_preexec($2); };
+
+postexec_def: POSTEXEC QSTRING	{ backup_postexec($2); };
 
 %%

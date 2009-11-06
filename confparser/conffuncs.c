@@ -157,6 +157,34 @@ backup_exclude(char *pattern)
 }
 
 void
+backup_preexec(char *cmdline)
+{
+	if (!current_backup)
+	{
+		fprintf(stderr, "No backup selected! (This shouldn't "
+			"happen)\n");
+		exit(EXIT_FAILURE);
+	}
+
+	/* XXX: Unquote! But since we really don't support quoting yet... */
+	current_backup->preexec = cmdline;
+}
+
+void
+backup_postexec(char *cmdline)
+{
+	if (!current_backup)
+	{
+		fprintf(stderr, "No backup selected! (This shouldn't "
+			"happen)\n");
+		exit(EXIT_FAILURE);
+	}
+
+	/* XXX: Unquote! But since we really don't support quoting yet... */
+	current_backup->postexec = cmdline;
+}
+
+void
 backup_finalize(void)
 {
 	if (!current_backup)
@@ -182,6 +210,10 @@ backup_finalize(void)
 			free(current_backup->source);
 		if (current_backup->dest)
 			free(current_backup->dest);
+		if (current_backup->preexec)
+			free(current_backup->preexec);
+		if (current_backup->postexec)
+			free(current_backup->postexec);
 		free(current_backup->name);
 		free(current_backup);
 		current_backup = NULL;

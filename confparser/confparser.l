@@ -57,6 +57,8 @@
 <BACKUP>Destination		{ return DESTINATION; }
 <BACKUP>Summary			{ return SUMMARY; }
 <BACKUP>Exclude			{ return EXCLUDELIST; }
+<BACKUP>PreExec			{ return PREEXEC; }
+<BACKUP>PostExec		{ return POSTEXEC; }
 <BACKUP>[1-9][0-9]*		{ return NUMBER; }
 <BACKUP>\"[^\"\n]*[\"\n]	{ yylval.strval = strdup(yytext+1);
 					yylval.strval[yyleng-2] = '\0';
