@@ -33,7 +33,7 @@
  */
 
 #include <bcollect.h>
-#include <y.tab.h>
+#include <confparser.h>
 %}
 
 %state DEFAULTS BACKUP COPYIN
