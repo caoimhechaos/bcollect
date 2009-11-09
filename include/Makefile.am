@@ -1,1 +1,1 @@
-include_HEADERS=	bcollect.h  flock.h
+noinst_HEADERS=		bcollect.h flock.h
