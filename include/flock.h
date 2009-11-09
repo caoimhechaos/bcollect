@@ -34,12 +34,22 @@
 /*
  * Definitions
  */
+#ifndef LOCK_SH
 #define LOCK_SH	0x01	/* shared file lock */
+#endif /* LOCK_SH */
+#ifndef LOCK_EX
 #define	LOCK_EX	0x02	/* exclusive file lock */
+#endif /* LOCK_EX */
+#ifndef LOCK_NB
 #define LOCK_NB	0x04	/* don't block when locking */
+#endif /* LOCK_NB */
+#ifndef LOCK_UN
 #define LOCK_UN	0x08	/* unlock file */
+#endif /* LOCK_UN */
 
 /*
  * flock function
  */
+#ifndef HAVE_FLOCK
 extern int flock(int fd, int operation);
+#endif

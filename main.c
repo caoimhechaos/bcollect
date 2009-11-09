@@ -39,9 +39,9 @@ int main(int argc, char **argv)
 			fprintf(stderr, "WARNING! Parallel mode is not yet implemented.\n");
 			break;
 		case 'v':
-			fprintf(stderr, "bcollect version %s (%s)\n"
-				"Compiled for %s\n", BCOLLECT_VERSION,
-				BCOLLECT_BRANCH, BCOLLECT_OSNAME);
+			fprintf(stderr, "bcollect version %s\n"
+				"Compiled for %s\n", PACKAGE_STRING,
+				PACKAGE_OSNAME);
 			exit(EXIT_SUCCESS);
 		default:
 			usage;
