@@ -45,7 +45,7 @@ do_backup(struct interval *interval, struct backup *backup)
 	size_t locklen = strlen(backup->dest) + 7;
 	size_t nbackups = interval->count + 1;
 	size_t len = strlen(backup->dest) + strlen(interval->name) +
-		strlen(backup->name) + 20;
+		strlen(backup->name) + 21;
 	pid_t pid;
 
 	char *lockpath = malloc(locklen);
@@ -67,9 +67,9 @@ do_backup(struct interval *interval, struct backup *backup)
 
 	snprintf(lockpath, locklen, "%s/.lock", backup->dest);
 	snprintf(progpath, proglen, "%s/.backup_in_progress", backup->dest);
-	snprintf(path, len - 16, "%s/%s-%s-", backup->dest, backup->name,
+	snprintf(path, len - 17, "%s/%s-%s-", backup->dest, backup->name,
 		interval->name);
-	strftime(path + len - 17, 16, "%Y-%m-%d_%Hh%M", now);
+	strftime(path + len - 18, 17, "%Y-%m-%d_%Hh%M", now);
 
 	lockfd = open(lockpath, O_WRONLY | O_CREAT,
 		S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
