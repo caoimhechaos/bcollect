@@ -1,4 +1,4 @@
-SUBDIRS=		include confparser
+SUBDIRS=		include confparser examples
 bin_PROGRAMS=		bcollect
 noinst_PROGRAMS=	rmfr
 bcollect_SOURCES=	confparser/libconfparser.a main.c rmdir.c backup.c flock.c

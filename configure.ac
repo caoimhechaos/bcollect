@@ -54,5 +54,6 @@ AC_DEFINE_UNQUOTED(SYSCONFDIR, ["$SYSCONFDIR"], [System configuration directory 
 
 AC_CONFIG_FILES([Makefile
                  confparser/Makefile
+                 examples/Makefile
                  include/Makefile])
 AC_OUTPUT
