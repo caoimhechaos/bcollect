@@ -129,6 +129,19 @@ backup_summary(unsigned long flag)
 }
 
 void
+backup_fromcc(unsigned long flag)
+{
+	if (!current_backup)
+	{
+		fprintf(stderr, "No backup selected! (This shouldn't "
+			"happen)\n");
+		exit(EXIT_FAILURE);
+	}
+
+	current_backup->ccollect = !!flag;
+}
+
+void
 backup_exclude(char *pattern)
 {
 	struct exclude *entry;
