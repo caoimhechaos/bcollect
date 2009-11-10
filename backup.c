@@ -71,7 +71,7 @@ do_backup(struct interval *interval, struct backup *backup)
 		interval->name);
 	strftime(path + len - 18, 17, "%Y-%m-%d_%Hh%M", now);
 
-	lockfd = open(lockpath, O_RDONLY | O_CREAT,
+	lockfd = open(lockpath, O_WRONLY | O_CREAT,
 		S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
 	if (lockfd == -1)
 	{
@@ -91,10 +91,14 @@ do_backup(struct interval *interval, struct backup *backup)
 		goto out_close_lock;
 	}
 
-	lockfd = open(lockpath, O_RDONLY | O_CREAT | O_EXCL,
+	progfd = open(progpath, O_WRONLY | O_CREAT | O_EXCL,
 		S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
 	if (progfd == -1)
 	{
+		/**
+		 * Backup in progress marker still around, we should
+		 * delete one backup.
+		 */
 		struct dirent *de;
 		struct stat sb;
 		char *latest;
@@ -244,7 +248,10 @@ do_backup(struct interval *interval, struct backup *backup)
 		closedir(dirp);
 
 		if (oldest && nbackups > interval->count)
+		{
+			fprintf(stderr, "Removing old backup %s\n", oldest);
 			rmdir_recursive(oldest);
+		}
 
 		if (oldest) free(oldest);
 	}
