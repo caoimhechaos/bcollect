@@ -13,6 +13,8 @@ AC_PROG_CC
 AC_PROG_LEX
 AC_PROG_YACC
 AC_PROG_RANLIB
+AC_PATH_PROG(RSYNC_PATH, rsync)
+AC_DEFINE_UNQUOTED(RSYNC_PATH, ["$RSYNC_PATH"], [Path to the rsync tool])
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-ll':
@@ -39,8 +41,16 @@ AC_SUBST(CFLAGS)
 YFLAGS="-d"
 AC_SUBST(YFLAGS)
 
+dnl We need to sanitize the prefix for using sysconfdir
+if test x"$prefix" = xNONE
+then
+	prefix="$ac_default_prefix"
+fi
+
+eval "SYSCONFDIR=$sysconfdir"
 PACKAGE_OSNAME=`uname -sr`
 AC_DEFINE_UNQUOTED(PACKAGE_OSNAME, ["$PACKAGE_OSNAME"], [Package operating system])
+AC_DEFINE_UNQUOTED(SYSCONFDIR, ["$SYSCONFDIR"], [System configuration directory (e.g. /etc)])
 
 AC_CONFIG_FILES([Makefile
                  confparser/Makefile
