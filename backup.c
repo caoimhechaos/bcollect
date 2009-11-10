@@ -294,10 +294,10 @@ do_backup(struct interval *interval, struct backup *backup)
 
 		for (pos = backup->excludelist.next; pos &&
 			pos->next != &backup->excludelist; pos = pos->next)
-			argc += 2;
+			++argc;
 
 		if (latestpath)
-			argc += 2;
+			++argc;
 
 		argv = malloc(argc * sizeof(char *));
 
@@ -312,15 +312,31 @@ do_backup(struct interval *interval, struct backup *backup)
 
 		if (latestpath)
 		{
-			argv[argi++] = "--link-dest",
-			argv[argi++] = latestpath;
+			size_t alen = sizeof("--link-dest=") +
+				strlen(latestpath) + 1;
+			argv[argi] = malloc(alen);
+			if (!argv[argi])
+			{
+				perror("malloc");
+				exit(EXIT_FAILURE);
+			}
+			snprintf(argv[argi++], alen - 1, "--link-dest=%s",
+				latestpath);
 		}
 
 		for (pos = backup->excludelist.next; pos &&
 			pos->next != &backup->excludelist; pos = pos->next)
 		{
-			argv[argi++] = "--exclude";
-			argv[argi++] = pos->pattern;
+			size_t alen = sizeof("--exclude=") +
+				strlen(pos->pattern) + 1;
+			argv[argi] = malloc(alen);
+			if (!argv[argi])
+			{
+				perror("malloc");
+				exit(EXIT_FAILURE);
+			}
+			snprintf(argv[argi++], alen - 1, "--exclude=%s",
+				pos->pattern);
 		}
 
 		argv[argi++] = backup->source;
