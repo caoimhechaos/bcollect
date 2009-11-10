@@ -293,7 +293,7 @@ do_backup(struct interval *interval, struct backup *backup)
 		int argi;
 
 		for (pos = backup->excludelist.next; pos &&
-			pos->next != &backup->excludelist; pos = pos->next)
+			pos != &backup->excludelist; pos = pos->next)
 			++argc;
 
 		if (latestpath)
@@ -325,7 +325,7 @@ do_backup(struct interval *interval, struct backup *backup)
 		}
 
 		for (pos = backup->excludelist.next; pos &&
-			pos->next != &backup->excludelist; pos = pos->next)
+			pos != &backup->excludelist; pos = pos->next)
 		{
 			size_t alen = sizeof("--exclude=") +
 				strlen(pos->pattern) + 1;
