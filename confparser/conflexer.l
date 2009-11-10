@@ -56,6 +56,7 @@
 <BACKUP>Source			{ return SOURCE; }
 <BACKUP>Destination		{ return DESTINATION; }
 <BACKUP>Summary			{ return SUMMARY; }
+<BACKUP>FromCcollect		{ return FROMCCOLLECT; }
 <BACKUP>Exclude			{ return EXCLUDELIST; }
 <BACKUP>PreExec			{ return PREEXEC; }
 <BACKUP>PostExec		{ return POSTEXEC; }

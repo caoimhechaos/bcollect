@@ -124,7 +124,14 @@ do_backup(struct interval *interval, struct backup *backup)
 			/* Check if the directory entry is a backup */
 			if (minlen < strlen(backup->name) ||
 				strncmp(de->d_name, backup->name, minlen))
-				continue;
+			{
+				if (!backup->ccollect ||
+					strlen(de->d_name) <
+						strlen(interval->name) ||
+					strncmp(de->d_name, interval->name,
+						strlen(interval->name)))
+					continue;
+			}
 
 			entry = malloc(entry_len);
 
@@ -187,7 +194,14 @@ do_backup(struct interval *interval, struct backup *backup)
 			/* Check if the directory entry is a backup */
 			if (minlen < strlen(backup->name) ||
 				strncmp(de->d_name, backup->name, minlen))
-				continue;
+			{
+				if (!backup->ccollect ||
+					strlen(de->d_name) <
+						strlen(interval->name) ||
+					strncmp(de->d_name, interval->name,
+						strlen(interval->name)))
+					continue;
+			}
 
 			nbackups++;
 			entry = malloc(entry_len);

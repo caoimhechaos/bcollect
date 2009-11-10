@@ -76,7 +76,8 @@ struct backup
 {
 	struct backup	*next, *prev;
 	char		*name, *source, *dest, *preexec, *postexec;
-	unsigned long	 summary;
+	unsigned long	 summary:1;
+	unsigned long	 ccollect:1;
 	struct exclude	 excludelist;
 };
 
