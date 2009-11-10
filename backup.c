@@ -248,10 +248,7 @@ do_backup(struct interval *interval, struct backup *backup)
 		closedir(dirp);
 
 		if (oldest && nbackups > interval->count)
-		{
-			fprintf(stderr, "Removing old backup %s\n", oldest);
 			rmdir_recursive(oldest);
-		}
 
 		if (oldest) free(oldest);
 	}
