@@ -55,8 +55,7 @@
  * Definitions
  */
 #define	MAX_INTERVALS	32
-#define	DEFAULT_PATH	"/etc/bcollect.conf"
-#define RSYNC_PATH	"/usr/pkg/bin/rsync"
+#define	DEFAULT_PATH	SYSCONFDIR "/" PACKAGE_TARNAME ".conf"
 
 /*
  * Data structures
