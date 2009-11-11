@@ -31,8 +31,7 @@
 
 #include <bcollect.h>
 
-struct interval intervals[MAX_INTERVALS];
-int nintervals;
+struct c_hashtable *intervals;
 
 struct backup backups;
 struct backup *current_backup = NULL;
@@ -40,8 +39,7 @@ struct backup *current_backup = NULL;
 void
 init_interval(void)
 {
-	memset(intervals, 0, sizeof(intervals));
-	nintervals = 0;
+	intervals = c_hashtable_new(c_stringhash, c_stringequals);
 
 	backups.next = backups.prev = &backups;
 }
@@ -49,15 +47,22 @@ init_interval(void)
 void
 declare_interval(char *name, int count)
 {
-	if (nintervals < MAX_INTERVALS)
+	struct interval *iv = malloc(sizeof(struct interval));
+
+	if (!iv)
 	{
-		intervals[nintervals].name =	name;
-		intervals[nintervals].count =	count;
-		nintervals++;
+		perror("malloc");
+		return;
 	}
-	else
+
+	iv->name = name;
+	iv->count = count;
+
+	if (!c_hashtable_replace(intervals, name, iv))
 	{
-		fprintf(stderr, "Adding interval %s: buffer full!\n", name);
+		perror("c_hashtable_replace");
+		free(iv);
+		return;
 	}
 }
 

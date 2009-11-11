@@ -77,12 +77,7 @@ int main(int argc, char **argv)
 
 	fclose(fp);
 
-	for (i = 0; i < nintervals; i++)
-	{
-		if (strcmp(intervalname, intervals[i].name) == 0)
-			interval = &intervals[i];
-	}
-
+	interval = c_hashtable_lookup(intervals, intervalname);
 	if (!interval)
 	{
 		fprintf(stderr, "No such interval: %s\n", intervalname);
