@@ -31,21 +31,67 @@
  * bcollect main header file.
  */
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif /* HAVE_SYS_TYPES_H */
+#ifdef HAVE_INTTYPES_H
+#include <inttypes.h>
+#endif /* HAVE_INTTYPES_H */
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif /* HAVE_STDINT_H */
+#ifdef HAVE_SYS_RESOURCE_H
 #include <sys/resource.h>
+#endif /* HAVE_SYS_RESOURCE_H */
+#ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
+#endif /* HAVE_SYS_PARAM_H */
+#ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
+#endif /* HAVE_SYS_STAT_H */
+#ifdef HAVE_WAIT_H
+#include <wait.h>
+#endif /* HAVE_WAIT_H */
+#ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>
+#endif /* HAVE_SYS_WAIT_H */
 #include <stdio.h>
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
+#endif /* HAVE_STDLIB_H */
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif /* HAVE_UNISTD_H */
+#ifdef HAVE_STRING_H
 #include <string.h>
+#endif /* HAVE_STRING_H */
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif /* HAVE_STRINGS_H */
+#ifdef HAVE_FCNTL_H
 #include <fcntl.h>
+#endif /* HAVE_FCNTL_H */
 #include <errno.h>
 #include <time.h>
+#ifdef HAVE_DIRENT_H
 #include <dirent.h>
+#endif /* HAVE_DIRENT_H */
+
+#ifdef HAVE_SYS_QUEUE_H
+#include <sys/queue.h>
+#elif defined(HAVE_NBCOMPAT_QUEUE_H)
+#include <nbcompat/queue.h>
+#endif
+#ifdef HAVE_CLIB_QUEUE_H
+#include <clib/queue.h>
+#endif
+#ifdef HAVE_CLIB_CLIB_H
+#include <clib/clib.h>
+#endif
 
 #ifndef HAVE_FLOCK
 #include <flock.h>

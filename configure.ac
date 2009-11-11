@@ -17,13 +17,34 @@ AC_PATH_PROG(RSYNC_PATH, rsync)
 AC_DEFINE_UNQUOTED(RSYNC_PATH, ["$RSYNC_PATH"], [Path to the rsync tool])
 
 # Checks for libraries.
+AC_CHECK_LIB([nbcompat], [main], [LIBS="-lnbcompat $LIBS"])
+AC_CHECK_LIB([clib], [c_hashtable_new], [LIBS="-lclib $LIBS"])
 # FIXME: Replace `main' with a function in `-ll':
 AC_CHECK_LIB([l], [main])
 # FIXME: Replace `main' with a function in `-ly':
 AC_CHECK_LIB([y], [main])
 
 # Checks for header files.
-AC_CHECK_HEADERS([fcntl.h stdlib.h string.h sys/param.h unistd.h])
+AC_HEADER_STDC
+AC_HEADER_STDBOOL
+AC_HEADER_SYS_WAIT
+AC_CHECK_HEADERS([fcntl.h stdlib.h string.h sys/param.h unistd.h queue.h \
+	sys/resource.h sys/queue.h sys/types.h dirent.h])
+
+AC_CHECK_HEADERS([clib/clib.h], [], [], [AC_INCLUDES_DEFAULT
+#ifdef HAVE_QUEUE_H
+#include <queue.h>
+#endif
+#ifdef HAVE_SYS_QUEUE_H
+#include <sys/queue.h>
+#endif
+#ifdef HAVE_NBCOMPAT_QUEUE_H
+#include <nbcompat/queue.h>
+#endif
+#ifdef HAVE_CLIB_QUEUE_H
+#include <clib/queue.h>
+#endif
+])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
