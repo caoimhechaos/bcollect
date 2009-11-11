@@ -137,8 +137,7 @@ extern char yytext[];
 #else
 extern char *yytext;
 #endif
-extern struct interval intervals[MAX_INTERVALS];
-extern int nintervals;
+extern struct c_hashtable *intervals;
 extern struct backup backups;
 
 /*
