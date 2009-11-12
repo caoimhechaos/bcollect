@@ -138,6 +138,7 @@ extern char yytext[];
 extern char *yytext;
 #endif
 extern struct c_hashtable *intervals;
+extern struct c_array *fh_stack;
 extern struct backup backups;
 
 /*

@@ -34,13 +34,45 @@
 
 #include <bcollect.h>
 #include <confparser.h>
+
+int
+yywrap(void)
+{
+	FILE *newfp = c_array_pop(fh_stack);
+	if (newfp)
+	{
+		yyin = newfp;
+		YY_NEW_FILE;
+		return 0;
+	}
+
+	return 1;
+}
 %}
 
-%state DEFAULTS BACKUP COPYIN
+%state DEFAULTS BACKUP COPYIN INCLUDE
 
+%{
+static int origstate = 0;
+%}
 %%
 #.*$				/* Ignore comments */;
 [ \t\n]+			/* Ignore Blanks */;
+
+Include				{ origstate = YYSTATE; BEGIN INCLUDE; }
+<INCLUDE>\"[^\"\n]*[\"\n]	{ char *bcfname = strdup(yytext + 1);
+				  FILE *bcnewfp;
+				  bcfname[yyleng-2] = '\0';
+				  bcnewfp = fopen(bcfname, "r");
+				  if (bcnewfp)
+				  {
+				  	c_array_push(fh_stack, yyin);
+					yyin = bcnewfp;
+					YY_NEW_FILE;
+				  }
+				  else
+				  	perror(bcfname);
+				  BEGIN origstate; }
 
 <INITIAL>"Begin Defaults"	{ BEGIN DEFAULTS; return BEGINDEFL; }
 <INITIAL>"Begin Backup"		{ BEGIN BACKUP; return BEGINBACKUP; }

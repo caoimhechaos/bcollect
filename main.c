@@ -1,6 +1,7 @@
 #include <bcollect.h>
 
 char *file = DEFAULT_PATH;
+struct c_array *fh_stack;
 
 static void usage(void)
 {
@@ -20,6 +21,7 @@ int main(int argc, char **argv)
 	int i;
 
 	init_interval();
+	fh_stack = c_array_new(c_resize_minimal);
 
 	for (;;)
 	{

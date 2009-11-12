@@ -39,12 +39,6 @@ extern char *yytext;
 extern FILE *yyin;
 static char *file;
 
-int
-yywrap(void)
-{
-	return 1;
-}
-
 void
 yyerror(char *str)
 {
