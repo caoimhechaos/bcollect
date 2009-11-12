@@ -57,8 +57,8 @@ AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([flock memset mkdir rmdir strdup strerror])
 
-CFLAGS="${CFLAGS} -I\$(top_srcdir)/include"
-AC_SUBST(CFLAGS)
+CPPFLAGS="${CPPFLAGS} -I\$(top_srcdir)/include"
+AC_SUBST(CPPFLAGS)
 YFLAGS="-d"
 AC_SUBST(YFLAGS)
 
