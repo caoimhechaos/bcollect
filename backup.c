@@ -263,6 +263,26 @@ do_backup(struct interval *interval, struct backup *backup)
 		goto out_unlock;
 	}
 
+	/**
+	 * Set a couple of variables for the preexec and postexec scripts.
+	 */
+	if (setenv("INTERVAL", interval->name, 1) ||
+		setenv("name", backup->name, 1) ||
+		setenv("source_full", backup->source, 1) ||
+		setenv("destination_full", path, 1) ||
+		setenv("destination_dir", path, 1) ||
+		setenv("destination_name", path + strlen(backup->dest) + 1, 1))
+	{
+		perror("setenv");
+		goto out_unlock;
+	}
+
+	if (latestpath && setenv("previous_path", latestpath, 1))
+	{
+		perror("setenv");
+		goto out_unsetenv;
+	}
+
 	/*
 	 * Call the pre-execution script
 	 *
@@ -281,7 +301,7 @@ do_backup(struct interval *interval, struct backup *backup)
 		{
 			perror("system");
 			rmdir_recursive(path);
-			goto out_unlock;
+			goto out_unsetenv;
 		}
 
 		if (WEXITSTATUS(exitcode))
@@ -289,7 +309,7 @@ do_backup(struct interval *interval, struct backup *backup)
 			fprintf(stderr, "pre_exec process exited with code %d!\n",
 				WEXITSTATUS(exitcode));
 			rmdir_recursive(path);
-			goto out_unlock;
+			goto out_unsetenv;
 		}
 	}
 
@@ -301,7 +321,7 @@ do_backup(struct interval *interval, struct backup *backup)
 	if (pid < 0)
 	{
 		perror("fork");
-		goto out_unlock;
+		goto out_unsetenv;
 	}
 	else if (!pid)
 	{
@@ -372,7 +392,7 @@ do_backup(struct interval *interval, struct backup *backup)
 		{
 			perror("wait");
 			rmdir_recursive(path);
-			goto out_unlock;
+			goto out_unsetenv;
 		}
 
 		if (WEXITSTATUS(exitcode) && WEXITSTATUS(exitcode) != 24)
@@ -380,7 +400,7 @@ do_backup(struct interval *interval, struct backup *backup)
 			fprintf(stderr, "rsync process exited with code %d!\n",
 				WEXITSTATUS(exitcode));
 			rmdir_recursive(path);
-			goto out_unlock;
+			goto out_unsetenv;
 		}
 	}
 
@@ -401,17 +421,25 @@ do_backup(struct interval *interval, struct backup *backup)
 		if (exitcode < 0)
 		{
 			perror("system");
-			goto out_unlock;
+			goto out_unsetenv;
 		}
 
 		if (WEXITSTATUS(exitcode))
 		{
 			fprintf(stderr, "post_exec process exited with code %d!\n",
 				WEXITSTATUS(exitcode));
-			goto out_unlock;
+			goto out_unsetenv;
 		}
 	}
 
+out_unsetenv:
+	if (latestpath) unsetenv("previous_path");
+	unsetenv("destination_name");
+	unsetenv("destination_dir");
+	unsetenv("destination_full");
+	unsetenv("source_full");
+	unsetenv("INTERVAL");
+	unsetenv("name");
 
 out_unlock:
 	flock(lockfd, LOCK_UN);
