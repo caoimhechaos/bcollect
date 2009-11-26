@@ -63,7 +63,7 @@ rmdir_recursive(const char *basedir)
 		memset(path, 0, len);
 		snprintf(path, len - 1, "%s/%s", basedir, dp->d_name);
 
-		if (stat(path, &sb))
+		if (lstat(path, &sb))
 		{
 			perror(path);
 			free(path);
