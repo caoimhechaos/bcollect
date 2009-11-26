@@ -101,7 +101,7 @@ do_backup(struct interval *interval, struct backup *backup)
 		 */
 		struct dirent *de;
 		struct stat sb;
-		char *latest;
+		char *latest = NULL;
 		time_t latestmtime = 0;
 		DIR *d;
 
