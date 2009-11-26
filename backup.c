@@ -375,7 +375,7 @@ do_backup(struct interval *interval, struct backup *backup)
 			goto out_unlock;
 		}
 
-		if (WEXITSTATUS(exitcode))
+		if (WEXITSTATUS(exitcode) && WEXITSTATUS(exitcode) != 24)
 		{
 			fprintf(stderr, "rsync process exited with code %d!\n",
 				WEXITSTATUS(exitcode));
