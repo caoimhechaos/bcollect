@@ -18,10 +18,8 @@ AC_DEFINE_UNQUOTED(RSYNC_PATH, ["$RSYNC_PATH"], [Path to the rsync tool])
 
 # Checks for libraries.
 AC_CHECK_LIB([nbcompat], [main], [LIBS="-lnbcompat $LIBS"])
-AC_CHECK_LIB([clib], [c_hashtable_new], [LIBS="-lclib $LIBS"])
-# FIXME: Replace `main' with a function in `-ll':
+AC_CHECK_LIB([clib], [c_hashtable_new], [LIBS="-lclib $LIBS"], [AC_ERROR([clib not found, please install it])])
 AC_CHECK_LIB([l], [main])
-# FIXME: Replace `main' with a function in `-ly':
 AC_CHECK_LIB([y], [main])
 
 # Checks for header files.
