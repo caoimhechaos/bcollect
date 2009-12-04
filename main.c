@@ -85,7 +85,8 @@ int main(int argc, char **argv)
 	}
 
 	for (cur = backups.next; cur && cur != &backups; cur = cur->next)
-		if (all_backups || strcmp(backupname, cur->name) == 0)
+		if ((all_backups && !cur->manualonly) ||
+			strcmp(backupname, cur->name) == 0)
 			do_backup(interval, cur);
 
 	exit(EXIT_SUCCESS);

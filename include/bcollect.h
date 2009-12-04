@@ -124,6 +124,7 @@ struct backup
 	char		*name, *source, *dest, *preexec, *postexec;
 	unsigned long	 summary:1;
 	unsigned long	 ccollect:1;
+	unsigned long	 manualonly:1;
 	struct exclude	 excludelist;
 };
 

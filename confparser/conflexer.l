@@ -57,6 +57,7 @@
 <BACKUP>Destination		{ return DESTINATION; }
 <BACKUP>Summary			{ return SUMMARY; }
 <BACKUP>FromCcollect		{ return FROMCCOLLECT; }
+<BACKUP>ManualOnly		{ return MANUALONLY; }
 <BACKUP>Exclude			{ return EXCLUDELIST; }
 <BACKUP>PreExec			{ return PREEXEC; }
 <BACKUP>PostExec		{ return POSTEXEC; }

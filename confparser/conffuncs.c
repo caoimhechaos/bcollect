@@ -133,6 +133,7 @@ backup_summary(unsigned long flag)
 	current_backup->summary = !!flag;
 }
 
+/* FIXME: some of these functions should be unified */
 void
 backup_fromcc(unsigned long flag)
 {
@@ -144,6 +145,19 @@ backup_fromcc(unsigned long flag)
 	}
 
 	current_backup->ccollect = !!flag;
+}
+
+void
+backup_manual(unsigned long flag)
+{
+	if (!current_backup)
+	{
+		fprintf(stderr, "No backup selected! (This shouldn't "
+			"happen)\n");
+		exit(EXIT_FAILURE);
+	}
+
+	current_backup->manualonly = !!flag;
 }
 
 void
