@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([bcollect], [0.5.99], [caoimhechaos@protonmail.com])
+AC_INIT([bcollect], [0.6.0], [caoimhechaos@protonmail.com])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([flock.c])
 AC_CONFIG_HEADERS([config.h])
