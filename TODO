@@ -1,7 +1,4 @@
-Todo after version 0.5:
+Todo after version 0.6:
  * Make the rmdir implementation iterative
  * Implement parallel execution (-p)
  * Implement pre/post execution
-
-Todo for version 0.5:
- * Make the definitions portable in some way (headers, etc.)
