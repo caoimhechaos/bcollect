@@ -166,6 +166,16 @@ do_backup(struct interval *interval, struct backup *backup)
 			fprintf(stderr, "Removing stale backup directory %s\n",
 				latest);
 			rmdir_recursive(latest);
+			if (!stat(latest, &sb) || errno != ENOENT)
+			{
+				fprintf(stderr, "Unable to completely remove"
+					" directory\n\n\t%s\n\nPlease clean "
+					"up manually and retry.\n"
+					"WARNING: Retrying immediately will "
+					"delete a different directory!\n",
+					latest);
+				goto out_unlock;
+			}
 			free(latest);
 		}
 	}
@@ -248,7 +258,19 @@ do_backup(struct interval *interval, struct backup *backup)
 		closedir(dirp);
 
 		if (oldest && nbackups > interval->count)
+		{
 			rmdir_recursive(oldest);
+			if (!stat(oldest, &sb) || errno != ENOENT)
+			{
+				fprintf(stderr, "Unable to completely remove"
+					" directory\n\n\t%s\n\nPlease clean "
+					"up manually and retry.\n"
+					"WARNING: Retrying immediately will "
+					"delete a different directory!\n",
+					oldest);
+				goto out_unlock;
+			}
+		}
 
 		if (oldest) free(oldest);
 	}
